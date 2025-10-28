@@ -1,0 +1,15 @@
+# Copyright (c) 2022 TOKITA Hiroshi <tokita.hiroshi@fujitsu.com>
+# SPDX-License-Identifier: Apache-2.0
+
+description: Elan EM32 SPI
+
+compatible: "elan,em32"
+
+include: [spi-controller.yaml, pinctrl-device.yaml, reset-device.yaml]
+
+properties:
+  reg:
+    required: true
+
+  clocks:
+    required: true

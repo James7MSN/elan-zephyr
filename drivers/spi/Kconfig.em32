@@ -1,0 +1,22 @@
+# SPDX-License-Identifier: Apache-2.0
+
+config SPI_EM32
+	default y
+	depends on DT_HAS_ELAN_EM32_ENABLED
+	select PINCTRL if $(dt_compat_any_has_prop,$(DT_COMPAT_ELAN_EM32),pinctrl-0)
+	bool "EM32 SPI driver"
+
+if SPI_EM32
+
+config SPI_EM32_INTERRUPT
+	bool "EM32 interrupt mode"
+	help
+	  Enables interrupt support for EM32 SPI driver.
+
+config SPI_EM32_DMA
+	bool "EM32 DMA mode"
+	select DMA
+	help
+	  Enables DMA support for EM32 SPI driver.
+
+endif

@@ -1,0 +1,1 @@
+cp build/zephyr/zephyr.bin /mnt/c/zephyr/967IAP/Debug.bin

@@ -1,0 +1,443 @@
+﻿,AIP Control Register Start Addr: 0x4003_6000,,,,,,,,
+,,,,,,,,,
+,Addr,IP name,Addr,IP name,Addr,IP name,,,
+,0x000,HIRC/LJIRC,0x500,BOR/LVD_USB/ADC/Flash,0xA00,,,,
+,0x100,IRC32K/IRC512K,0x600,SYS_HOLD 0&1,0xB00,,,,
+,0x200,XTAL,0x700,USB-PHY,0xC00,,,,
+,0x300,LDO/LDO2/DCDC/PLLREGU,0x800,,0xD00,,,,
+,0x400,PLLA/PLLB,0x900,,0xE00,SRAM,,,
+,,,,,0xF00,PASSWORD,,,
+,offset,Name,Bit,Bit Name,Description,Default,Trim Code,Inf Bit,
+,0x000,HIRC,bit[31:18],RESERVED,,14'h0,,,
+,,,bit[17:15],HIRC_TV12[2:0],Trimming bus of internal regulator voltage,3'b000,Inf autoload 12Mhz,,
+,,,bit[14:13],HIRC_TCF[1:0],Trimming center freauency shift bus,2'b11,Inf autoload 12Mhz,,
+,,,bit[12:11],HIRC_TBG[1:0],Trimming bus of internal bandgap voltage,2'b11,Inf autoload 12Mhz,,
+,,,bit[10:5],HIRC_CA[5:0],HIRC 6 bit trim code ,6'b111111,Inf autoload 12Mhz,,
+,,,bit[4:2],HIRC_RCM[2:0],"Frequency Select
+000: 12M
+001: 16M 
+010: 20M 
+011: 24M
+100: 28M(PLL會針對RCM[2]=1&補償開關開啟=> 補償高速SE)
+101: 32M(PLL會針對RCM[2]=1&補償開關開啟=> 補償高速SE)
+others: 32M",3'b000,,,
+,,,bit[1],HIRC_TESTV,"Internal regulator output enable
+0: HIRC Clock out, VDIRCO out HiZ
+1: HIRC Clock off, VDIRCO out 1.3V",1'b0,"切換clock要等待16T再放出去
+TESTV 要多做一道鎖",,
+,,,bit[0],HIRC_POWER_DOWN,"0: Active
+1: Power Down (PASSWORD)",1'b0,,,
+,0x004,LJIRC,bit[31:18],RESERVED,,14'h0,,,
+,,,bit[17],LJIRC_TESTV10B,Test mode control pin,1'b1,,,
+,,,bit[16:15],LJIRC_TMV10[1:0],1.0V internal regulator trimming bits,2'b11,,,
+,,,bit[14:12],LJIRC_FC[2:0],7% Trim Code FC 3 bit,3'b111,,,
+,,,bit[11:7],LJIRC_CA[4:0],0.84% Trim Code CA 5 bit,5'b11111,,,
+,,,bit[6:3],LJIRC_FR[3:0],0.15%  Trim Code FR 4 bit,4'b1111,,,
+,,,bit[2:1],LJIRC_RCM,"Frequency Select:
+00: 500KHz 
+01: 2MHz 
+10: 6MHz  
+11: 1MHz ",2'b11,,,
+,,,bit[0],LJIRC_PD,"0: Power On    
+1: Power Down",1'b1,6-clock ready,,
+,0x100,LIRC512K,bit[31:8],RESERVED,,24'h0000aa,dummy 8bit,,
+,,,bit[7:6],SIRC_512K_PSET,Sub IRC512 K capacitance trim,2'b01,,,
+,,,bit[5:1],SIRC_512K_CA,Trimming bit bus of 1% step,5'b11111,,,
+,,,bit[0],SIRC_512K_POWER_DOWN,"0: Power On
+1: Power Down ",1'b1,5-clock ready,,
+,0x104,LIRC32K,bit[31:8],RESERVED,,24'h0000aa,,,
+,,,bit[7:6],SIRC_32K_PSET,Sub IRC32k capacitance trim,2'b01,Inf autoload 32K,,
+,,,bit[5:1],SIRC_32K_CA,Sub irc 32k power CA,5'b11111,Inf autoload 32K,,
+,,,bit[0],SIRC_32K_POWER_DOWN,"0: Power On
+1: Power Down (PASSWORD) ",1'b0,5-clock ready,,
+,0x300,"LDO
+(Max 50mA)",bit[31:10],RESERVED,,22'h0,,,
+,,,bit[9:4],LDO_VT[5:0],Regulator Output Voltage Trim Bits,6'b011111,Inf autoload,,
+,,,bit[3:1],LDO_VS[2:0],"Regulator Output Voltage Select Bits.
+111: 0.9
+110: 1.2
+101: 1.1
+100: 1.05
+011: 0.8
+010: 0.9
+001: 0.95
+000: 1","3'b000(Reset value)
+3'b010(lve=1 after autoload)
+3'b101(lve=0 after autoload)",Inf autoload,,
+,,,bit[0],LDO_IDLE,"Standby Pin
+0: Power On
+1: IDLE=H, IP is Power Save  (PASSWORD) ",1'b0,"切換Mode要等10us
+切換Mode和切換電壓不能同時做",,
+,0x304,"LDO2
+(Max 50mA)",bit[31:9],RESERVED,,23'h0,,,
+,,,bit[8:7],LDO2_VSEL[1:0],"Regulator Output Voltage Select Bits.
+00: 2.05V(0.95V up)
+01: 2.15V(0.95V)
+10: 1.80V(0.95V down)
+11: 1.95V(0.9v)",2'b00,,,
+,,,bit[6:3],LDO2_VT[3:0],Regulator Output Voltage Trim Bits.,4'b0111,,,
+,,,bit[2],LDO2_Vref_EN,"LDO Enable Pin, if EN_REG=H, IP is Enable.
+0: Disable
+1: Enable",1'b1,"Cload=2.2uF情況下，
+供應電壓VDD33由0V升至3.3V，
+負載電流=50mA，
+輸出電壓VDD2V的start time約需要200us左右",,
+,,,bit[1],LDO2_PD,"LDO Power Down Pin, if PD_REG=H, IP is Power Down except Bandgap.
+0: Power On
+1: Power Down",1'b0,,,
+,,,bit[0],LDO2_IDLE,"LDO Standy Pin, if IDLE=H, IC is Power Save.
+0: Power On (120us左右 stable)
+1: IDLE=H, IP is Power Save",1'b0,,,
+,0x308,"DCDC
+(Max 10mA)",bit[31:12],RESERVED,,20'h0,,,
+,,,bit[11],DCDC_PUMPEN,2.05V-level signal => Trim use,1'b0(RO),,,
+,,,bit[10:9],DCDC_Select clock,"00:512K
+01:Pin clock
+1x:No clock(for CP/FT)",2'b11,,,
+,,,bit[8:4],DCDC_VFCP_O[4:0],DC-DC Comparator Voltage Trim Bits,5'b10111,,,
+,,,bit[3:2],DCDC_NOVT[1:0],0.9V-level non-overlap control ,2'b01,,,
+,,,bit[1],DCDC_ENI_DC,Precharge 0.9V-level control signal.,1'b0,先開,,
+,,,bit[0],DCDC_ENDC,"2.05V-level DCDC enable control
+0: Disable
+1: Enable",1'b0,後開,,
+,0x30C,PLL LDO,bit[31:9],RESERVED,,23'h0,,,
+,,,bit[8:5],PLLLDO_TV12[3:0],Regulator Output Voltage Trim Bits,4'b0111,,,
+,,,bit[4:2],PLLLDO_VS[2:0],"Regulator Output Voltage Select Bits.
+111: 0.9
+110: 1.2
+101: 1.1
+100: 1.05
+011: 0.8
+010: 0.9
+001: 0.95
+000: 1",3'b010,"USBPLL&SYSPLL
+只能使用0.9V",,
+,,,bit[1],PLLLDO_VP_SEL,"Output Select Pin
+0: Internal Regulator Output
+1: LDO1 Output",1'b1,"Default PLLRegu 沒power可能會漏電
+預設為LDO1 Power",,
+,,,bit[0],PLLLDO_PD,"Power Pin
+0: Power On
+1: IDLE=H, IP is Power Down",1'b1,"先切換VP_SEL
+等5us後再開啟Power",,
+,0x310,LDO Change Mode,bit[31:10],RESERVED,,22'h0,,,
+,,,bit[9:1],Change Counter,Change mode counter for status to status (32Khz),9'd3,"預設為0轉換125us左右
+預設為3轉換500us左右",,
+,,,bit[0],LDO_Change_en,"0: Disable
+1: Enable",1'b0,"要先enable才可以使用
+TKFPS32F967:先解除flash lve[5]再設定lve[4]
+EM32F967:flash lve[5]和lve[4] 要一起設定",,
+,0x400,"PLLA
+(USB x48)",bit[31:8],RESERVED,,24'h0,,,
+,,,bit[7],USB PLL stable flag,"USB stable stable bit
+0: not stable 
+1: stable (count by SIRC32K)",1'b0(RO),"normal > 192us
+fastlock > 104us",,
+,,,bit[6:5],USB PLL stable counter,"數SIRC32K clock cycle 次數
+00: 4 cycle(125us) 
+01: 6 cycle(187.5us)
+10: 8 cycle(250us)
+11: 10 cycle(312.5us) ",2'b00,,,
+,,,bit[4:2],USB_PLL_PSET,"Conner Select (Defaut: TT)
+000: 預設(選用順序1)
+001: 調高(+) (選用順序3)
+010: 降低(-) (選用順序8)
+011: 降低(-) (選用順序7)
+100: 調高(+) (選用順序6)
+101: 降低(-) (選用順序2)
+110: 不變 (接近000) (選用順序4)
+111: 調高(+) (選用順序5) ",3'b000,,,
+,,,bit[1],USB_PLL_FASTLOCK,"0: Fastlock Disable 
+1: Fastlock Enable",1'b0,,,
+,,,bit[0],USB_PLL_POWER_DOWN,"0: Power On    
+1: Power Down ",1'b1,,,
+,0x404,"PLLB
+(System x16)",bit[31:11],RESERVED,,22'h0,,,
+,,,bit[10],Flash SE extend duty,"0:正常PLL out duty
+1:高速112/128Mhz 進行補償",1'b0,ECO Bit control,,
+,,,bit[9],PLLB(system PLL) stable,"system PLL stable bit     
+0: not stable 
+1: stable  (count by SIRC32K)",1'b0(RO),> 100us,,
+,,,bit[8:7],PLLB stable counter,"數SIRC32K clock cycle 次數
+00: 4 cycle(125us) 
+01: 6 cycle(187.5us)
+10: 8 cycle(250us)
+11: 10 cycle(312.5us) ",2'b10,max > 225us,,
+,,,bit[6:3],SYSPLL_FSET,"Select Frequency range
+0000: 4M (預設,NTPT)
+0001: 5M (預設,NTPT)
+0010: 6M (預設,NTPT)
+0011: 7~8M (預設,NTPT)
+0100: 4M (調高(+), NLPL)
+0101: 5M (調高(+), NLPL)
+0110: 6M (調高(+), NLPL)
+0111: 7~8M (調高(+), NLPL)
+1000: 4M (降低(-), NHPH)
+1001: 5M (降低(-), NHPH)
+1010: 6M (降低(-), NHPH)
+1011: 7~8M (降低(-), NHPH)",4'b0010,,,
+,,,bit[2:1],SYSPLL_PSET,"Conner Select (Defaut: TT) PLL輸出頻段微調
+00: 預設
+01: 調高(+)
+10: 降低(-)
+11: 禁用",2'b00,,,
+,,,bit[0],SYSPLL_POWER_DOWN,"0: Power On    
+1: Power Down ",1'b1,,,
+,0x500,"BOR
+(VDD33)",bit[31:8],RESERVED,,24'h0,Output glitch 32Khz,,
+,,,bit[7],BOR_reset,"0: Disable (for CP Trim)
+1: Enable ",1'b1,,,
+,,,bit[6:3],BOR_R_TRIM[3:0],Tune variation of BOR,4'b1000,,,
+,,,bit[2],BOR_PD_VREF,"VREF’s power down enable
+0: Disable
+1: Enable ",1'b0,,,
+,,,bit[1],BOR_EN_LTCH,0.9V-Level BOR enable latch control,1'b1,,,
+,,,bit[0],BOR_BOREN,"BOR enable  
+0: Disable  
+1: Enable (read dealy wait for en latch)  (PASSWORD) ",1'b1,"Vref enable time
+Type:100us
+Max:150us",,
+,0x504,"LVD Flash
+(VDD33)",bit[31:24],RESERVED,,8'h0,,,
+,,,bit[23],LVD_hold_clock,"0: Hold OFF
+1: Hold ON",1'b0,,,
+,,,bit[22],LVD_Flash_Control_OFF,"0: Control ON
+1: Control OFF",1'b1,,,
+,,,bit[21],LVD_PWD_IO_OFF,"0: PWD_IO ON
+1: PWD_IO OFF",1'b1,,,
+,,,bit[20:15],LVD_CNT for PWD_IO,counter(512K) erase/mass-erase,6'b001000,,,
+,,,bit[14],LVD_Reset,"0: Disable Reset
+1: Enable Reset",1'b1,,,
+,,,bit[13:10],LVD_CNT for glitch,counter(512K),4'h0,,,
+,,,bit[9],LVD_ACT_Fall int,1: enable int,1'h0,,,
+,,,bit[8],LVD_ACT_Rise int,1: enable int,1'h0,,,
+,,,bit[7],LVD_ACT_Fall,"Low voltage detect status flag. set by HW,clear by SW
+0: LVD signal is Not Detected
+1: LVD signal is Detected ",1'b0(RW),,,
+,,,bit[6],LVD_ACT_Rise,"Low voltage detect status flag. set by HW,clear by SW
+0: LVD signal is Not Detected
+1: LVD signal is Detected ",1'b0(RW),,,
+,,,bit[5:1],LVD_R_TRIM[4:0],0.9V-Level tune variation of LVD,5'b10000,,,
+,,,bit[0],"LVD_EN
+(must polling setting ok)","LVD enable  
+0: Disable  
+1: Enable (read dealy wait for en latch)",1'b0,"AIP 512K 需要Enable
+Vref enable time > 150us
+LVD_Flash要使用, 需要先開啟BOR VREF",,
+,0x508,"LVD USB
+(VDD_USB)",bit[31:14],RESERVED,,18'h0,,,
+,,,bit[13],LVD_Power,"0: Power on
+1: Power OFF",1'h0,"LVD_Power = 1 時, LVD_EN不能為1",,
+,,,bit[12:9],LVD_CNT for glitch,counter(512K),4'h0,,,
+,,,bit[8],LVD_ACT_Fall int,1: enable int,1'h0,,,
+,,,bit[7],LVD_ACT_Rise int,1: enable int,1'h0,,,
+,,,bit[6],LVD_ACT_Fall,"Low voltage detect status flag. set by HW,clear by SW
+0: LVD signal is Not Detected
+1: LVD signal is Detected ",1'b0(RW),,,
+,,,bit[5],LVD_ACT_Rise,"Low voltage detect status flag. set by HW,clear by SW
+0: LVD signal is Not Detected
+1: LVD signal is Detected ",1'b0(RW),,,
+,,,bit[4:1],LVD_R_TRIM[3:0],0.9V-Level tune variation of LVD,4'b1000,,,
+,,,bit[0],"LVD_EN
+(must polling setting ok)","LVD enable  
+0: Disable  
+1: Enable (read dealy wait for en latch)",1'b0,"AIP 512K 需要Enable
+Vref enable time > 330us
+LVD_USB要使用, 需要先開啟LDO2 VREF",,
+,0x50C,"LVD DCDC
+(DCDC)",bit[31:17],RESERVED,,15'h0,,,
+,,,bit[16:13],LVD_CNT for glitch,counter(512K),4'h0,,,
+,,,bit[12],LVD_ACT_Fall int,1: enable int,1'h0,,,
+,,,bit[11],LVD_ACT_Rise int,1: enable int,1'h0,,,
+,,,bit[10],LVD_ACT_Fall,"Low voltage detect status flag. set by HW,clear by SW
+0: LVD signal is Not Detected
+1: LVD signal is Detected ",1'b0(RW),,,
+,,,bit[9],LVD_ACT_Rise,"Low voltage detect status flag. set by HW,clear by SW
+0: LVD signal is Not Detected
+1: LVD signal is Detected ",1'b0(RW),,,
+,,,bit[8:5],LVD_OPTION[3:0],"0.9V-Level level selected,
+1111=3.25V,1110=3.15V,1101=3.05V,1100=2.95V
+1011=2.85V,1010=2.75V,1001=2.65V,1000=2.55V
+0111=2.45V,0110=2.35V,0101=2.25V,0100=2.15V
+0011=2.05V,0010=1.95V,0001=1.85V,0000=1.75V",4'b1000,,,
+,,,bit[4:1],LVD_R_TRIM[3:0],0.9V-Level tune variation of LVD,4'b1000,,,
+,,,bit[0],"LVD_EN
+(must polling setting ok)","LVD enable  
+0: Disable  
+1: Enable (read dealy wait for en latch)",1'b0,"AIP 512K 需要Enable
+Vref enable time > 330us
+LVD_USB要使用, 需要先開啟LDO2 VREF",,
+,0x510,"LVD VDD33
+(VDD33)",bit[31:17],RESERVED,,15'h0,,,
+,,,bit[16:13],LVD_CNT for glitch,counter(512K),4'h0,,,
+,,,bit[12],LVD_ACT_Fall int,1: enable int,1'h0,,,
+,,,bit[11],LVD_ACT_Rise int,1: enable int,1'h0,,,
+,,,bit[10],LVD_ACT_Fall,"Low voltage detect status flag. set by HW,clear by SW
+0: LVD signal is Not Detected
+1: LVD signal is Detected ",1'b0(RW),,,
+,,,bit[9],LVD_ACT_Rise,"Low voltage detect status flag. set by HW,clear by SW
+0: LVD signal is Not Detected
+1: LVD signal is Detected ",1'b0(RW),,,
+,,,bit[8:5],LVD_OPTION[3:0],"0.9V-Level level selected,
+1111=3.0V,1110=2.9V,1101=2.8V,1100=2.7V
+1011=2.6V,1010=2.5V,1001=2.4V,1000=2.3V
+0111=2.2V,0110=2.1V,0101=2.0V,0100=1.9V
+0011=1.8V,0010=1.7V,0001=1.6V,0000=1.5V",4'b1000,,,
+,,,bit[4:1],LVD_R_TRIM[3:0],0.9V-Level tune variation of LVD,4'b1000,,,
+,,,bit[0],"LVD_EN
+(must polling setting ok)","LVD enable  
+0: Disable  
+1: Enable (read dealy wait for en latch)",1'b0,"AIP 512K 需要Enable
+Vref enable time > 330us
+LVD_USB要使用, 需要先開啟LDO2 VREF",,
+,0x514,"LVD LVDI
+(LVDI PAD)",bit[31:17],RESERVED,,15'h0,,,
+,,,bit[16:13],LVD_CNT for glitch,counter(512K),4'h0,,,
+,,,bit[12],LVD_ACT_Fall int,1: enable int,1'h0,,,
+,,,bit[11],LVD_ACT_Rise int,1: enable int,1'h0,,,
+,,,bit[10],LVD_ACT_Fall,"Low voltage detect status flag. set by HW,clear by SW
+0: LVD signal is Not Detected
+1: LVD signal is Detected ",1'b0(RW),,,
+,,,bit[9],LVD_ACT_Rise,"Low voltage detect status flag. set by HW,clear by SW
+0: LVD signal is Not Detected
+1: LVD signal is Detected ",1'b0(RW),,,
+,,,bit[8:5],LVD_OPTION[3:0],"0.9V-Level level selected,
+1111=2.8V,1110=2.7V,1101=2.6V,1100=2.5V
+1011=2.4V,1010=2.3V,1001=2.2V,1000=2.1V
+0111=2.0V,0110=1.9V,0101=1.8V,0100=1.7V
+0011=1.6V,0010=1.5V,0001=1.4V,0000=1.3V",4'b1000,,,
+,,,bit[4:1],LVD_R_TRIM[3:0],0.9V-Level tune variation of LVD,4'b1000,,,
+,,,bit[0],"LVD_EN
+(must polling setting ok)","LVD enable  
+0: Disable  
+1: Enable (read dealy wait for en latch)",1'b0,"AIP 512K 需要Enable
+Vref enable time > 330us
+LVD_USB要使用, 需要先開啟LDO2 VREF",,
+,0x600,SYSHOLD,bit[31:9],RESERVED,,23'h0,,,
+,,,bit[8],EFT_SEL,"0:Sample EFT OUT
+1:Latch EFT OUT",1'b0,,,
+,,,bit[7],SYSHOLD_SEL,"0:Sample SYSHOLD OUT
+1:latch SYSHOLD OUT",1'b0,,,
+,,,bit[6],SYSHOLD_ACT,"System Hold status flag. set by HW,clear by SW
+0: System Hold signal is Not Detected 
+1: System Hold signal is Detected   ",1'b0(RW),"發生Syshold 是否要hold MCU & 要hold 多久 
+UDC 是否要Hold 住以及是否要做USB假插拔......等 ",,
+,,,bit[5],SYSHOLD_EFT_ACT,"System Hold EFT status flag. set by HW,clear by SW
+0: System Hold signal is Not Detected 
+1: System Hold EFT signal is Detected   ",1'b0,"Syshold out需要一個latch hold住 pulse?
+EFT 最快可以8ns",,
+,,,bit[4],EFT_VS07,Set pulse level to 0.7V(3.3 +/- 0.7),1'b0,,,
+,,,bit[3],EFT_VS06,Set pulse level to 0.6V(3.3 +/- 0.6),1'b0,,,
+,,,bit[2],EFT_VS05,Set pulse level to 0.5V(3.3 +/- 0.5),1'b0,,,
+,,,bit[1],EFT_VS04,Set pulse level to 0.4V (3.3 +/- 0.4),1'b0,,,
+,,,bit[0],EFT_PD,"0: Power On    
+1: Power Down ",1'b1,,,
+,0x700,USB-PHY,bit[31:13],RESERVED,,21'h00005,dummy[15:13]= 3bit,,
+,,,bit[12],PHY_RSW_DM,"USB bulit-in pull-down resistor. 
+0: Disable pull-Down   
+1: Enable  pull-Down",1'b1,"開啟預防USB_VDD沒有電時
+POC電路漏電",,
+,,,bit[11],PHY_RSW_DP,"USB bulit-in pull-down resistor. 
+0: Disable pull-Down   
+1: Enable  pull-Down",1'b1,"開啟預防USB_VDD沒有電時
+POC電路漏電",,
+,,,bit[10],PHY_RSW,"USB bulit-in pull-up resistor. 
+0: Disable Pull-Up   
+1: Enable  Pull-Up",1'b0,,,
+,,,bit[9],PHY_RESET,"The input signal from detector. 
+It's asserted until the output of the regulator rises to 1.2V.",1'b0,,,
+,,,bit[8],PHY_POWER_DOWNB,"0: PHY Power Down   
+1: PHY Power On",1'b0,,,
+,,,bit[7:4],PHY_R_TRIM[3:0],"Pull-up resistance trim bits(1.2V), +/- 8% @ 1.5K
+0000~1111",4'b0111,,,
+,,,bit[3:2],PHY_BUF_P_SEL,"Output buffer driving ability.    default : 01 ;  
+00: Weak Driving Ability 
+11: Strong Driving Ability",2'b01,,,
+,,,bit[1:0],PHY_BUF_N_SEL,"Output buffer driving ability.    default : 01 ;  
+00: Weak Driving Ability 
+11: Strong Driving Ability",2'b01,,,
+,0xE00,"SRAM
+ (PASSWORD) ",bit[31:14],RESERVED,PASSWORD,18'h0,,,
+,,,bit[13],TEST1,Test pin to bypass self-timed circuit,1'b0,,,
+,,,bit[12:10],WPULSE[2:0],Write Assist Pulse to control pulse width of negative voltage,3'b000,,,
+,,,bit[9:8],RA[1:0],Read Assist Pins to control WL under-drive,"2'b01(lve=1)
+2'b00(lve=0)",,,
+,,,bit[7:5],WA[2:0],Write Assist PINS to control negative voltage,"3'b110(lve=1)
+3'b100(lve=0)",,,
+,,,bit[4:1],RM[3:0],Read-Write Margin Enable Input,"4'b0000(lve=1)
+4'b0011(lve=0)",,,
+,,,bit[0],RME,Read-Write Margin Enable Input,1'b1,,,
+,0xE04,"SRAM
+ (PASSWORD) ",bit[31:18],RESERVED,PASSWORD,14'h0,,,
+,,,bit[17],LS Enable,"Enable LS Function
+0: Disable
+1: Enable",1'b0,,,
+,,,bit[16],"LS: Light Sleep Input 50%
+wait:1ns
+Priority SD > DS > LS",GHM,1'b0,,,
+,,,bit[15],,Flash Buffer,1'b0,,,
+,,,bit[14],,Encrypt,1'b0,,,
+,,,bit[13],,USB,1'b0,,,
+,,,bit[12],,RESERVED,1'b0,,,
+,,,bit[11],,Cache RAM,1'b0,,,
+,,,bit[10],,SYSData RAM: 0x2003_8000~0x2004_3FFF(48KB) LSB-Half-word,1'b0,,,
+,,,bit[9],,SYSData RAM: 0x2003_8000~0x2004_3FFF(48KB) MSB-Half-word,1'b0,,,
+,,,bit[8],,SYSData RAM: 0x2002_C000~0x2003_7FFF(48KB) LSB-Half-word,1'b0,,,
+,,,bit[7],,SYSData RAM: 0x2002_C000~0x2003_7FFF(48KB) MSB-Half-word,1'b0,,,
+,,,bit[6],,SYSData RAM: 0x2002_8000~0x2002_BFFF(16KB),1'b0,,,
+,,,bit[5],,IDData RAM: 0x2002_6000~0x2002_7FFF(8KB) ,1'b0,,,
+,,,bit[4],,IDData RAM: 0x2002_4000~0x2002_5FFF(8KB) ,1'b0,,,
+,,,bit[3],,IDData RAM: 0x2002_2000~0x2002_3FFF(8KB) ,1'b0,,,
+,,,bit[2],,IDData RAM: 0x2002_0000~0x2002_1FFF(8KB) ,1'b0,,,
+,,,bit[1],,IDData RAM: 0x2001_0000~0x2001_FFFF(64KB) ,1'b0,,,
+,,,bit[0],,IDData RAM: 0x2000_0000~0x2000_FFFF(64KB) ,1'b0,,,
+,0xE08,"SRAM
+ (PASSWORD) ",bit[31:18],RESERVED,,14'h0,,,
+,,,bit[17],DS Enable,"Enable DS Function
+0: Disable
+1: Enable",1'b0,,,
+,,,bit[16],"DS: Deep Sleep Input 70%
+wait:50ns
+Priority SD > DS > LS",GHM,1'b0,,,
+,,,bit[15],,Flash Buffer,1'b0,,,
+,,,bit[14],,Encrypt,1'b0,,,
+,,,bit[13],,USB,1'b0,,,
+,,,bit[12],,RESERVED,1'b0,,,
+,,,bit[11],,Cache RAM,1'b0,,,
+,,,bit[10],,SYSData RAM: 0x2003_8000~0x2004_3FFF(48KB) LSB-Half-word,1'b0,,,
+,,,bit[9],,SYSData RAM: 0x2003_8000~0x2004_3FFF(48KB) MSB-Half-word,1'b0,,,
+,,,bit[8],,SYSData RAM: 0x2002_C000~0x2003_7FFF(48KB) LSB-Half-word,1'b0,,,
+,,,bit[7],,SYSData RAM: 0x2002_C000~0x2003_7FFF(48KB) MSB-Half-word,1'b0,,,
+,,,bit[6],,SYSData RAM: 0x2002_8000~0x2002_BFFF(16KB),1'b0,,,
+,,,bit[5],,IDData RAM: 0x2002_6000~0x2002_7FFF(8KB) ,1'b0,,,
+,,,bit[4],,IDData RAM: 0x2002_4000~0x2002_5FFF(8KB) ,1'b0,,,
+,,,bit[3],,IDData RAM: 0x2002_2000~0x2002_3FFF(8KB) ,1'b0,,,
+,,,bit[2],,IDData RAM: 0x2002_0000~0x2002_1FFF(8KB) ,1'b0,,,
+,,,bit[1],,IDData RAM: 0x2001_0000~0x2001_FFFF(64KB) ,1'b0,,,
+,,,bit[0],,IDData RAM: 0x2000_0000~0x2000_FFFF(64KB) ,1'b0,,,
+,0xE0C,"SRAM
+ (PASSWORD) ",bit[31:18],RESERVED,,14'h0,,,
+,,,bit[17],SD Enable,"Enable SD Function
+0: Disable
+1: Enable",1'b0,,,
+,,,bit[16],"SD: Shut Down Input 90%
+wait:50ns
+Priority SD > DS > LS",GHM,1'b0,,,
+,,,bit[15],,Flash Buffer,1'b0,,,
+,,,bit[14],,Encrypt,1'b0,,,
+,,,bit[13],,USB,1'b0,,,
+,,,bit[12],,RESERVED,1'b0,,,
+,,,bit[11],,Cache RAM,1'b0,,,
+,,,bit[10],,SYSData RAM: 0x2003_8000~0x2004_3FFF(48KB) LSB-Half-word,1'b0,,,
+,,,bit[9],,SYSData RAM: 0x2003_8000~0x2004_3FFF(48KB) MSB-Half-word,1'b0,,,
+,,,bit[8],,SYSData RAM: 0x2002_C000~0x2003_7FFF(48KB) LSB-Half-word,1'b0,,,
+,,,bit[7],,SYSData RAM: 0x2002_C000~0x2003_7FFF(48KB) MSB-Half-word,1'b0,,,
+,,,bit[6],,SYSData RAM: 0x2002_8000~0x2002_BFFF(16KB),1'b0,,,
+,,,bit[5],,IDData RAM: 0x2002_6000~0x2002_7FFF(8KB) ,1'b0,,,
+,,,bit[4],,IDData RAM: 0x2002_4000~0x2002_5FFF(8KB) ,1'b0,,,
+,,,bit[3],,IDData RAM: 0x2002_2000~0x2002_3FFF(8KB) ,1'b0,,,
+,,,bit[2],,IDData RAM: 0x2002_0000~0x2002_1FFF(8KB) ,1'b0,,,
+,,,bit[1],,IDData RAM: 0x2001_0000~0x2001_FFFF(64KB) ,1'b0,,,
+,,,bit[0],,IDData RAM: 0x2000_0000~0x2000_FFFF(64KB) ,1'b0,,,
+,0xF00,PASSWORD,bit[31:0],AIP_PASSWORD,"AIP 防誤動作開關
+81948434",32'b0,,,

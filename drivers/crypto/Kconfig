@@ -1,0 +1,72 @@
+# Copyright (c) 2024 Elan Microelectronics Corp.
+# SPDX-License-Identifier: Apache-2.0
+
+config CRYPTO_EM32_SHA
+	bool "EM32F967 SHA256 Hardware Acceleration"
+	default y
+	depends on DT_HAS_ELAN_EM32_CRYPTO_ENABLED
+	select CRYPTO
+	help
+	  Enable hardware SHA256 acceleration for EM32F967 microcontroller.
+	  This driver provides SHA-256 hash computation using the dedicated
+	  cryptographic hardware engine.
+
+if CRYPTO_EM32_SHA
+
+config CRYPTO_EM32_SHA_INTERRUPT
+	bool "Use interrupt-driven operation"
+	default n
+	help
+	  Enable interrupt-driven SHA256 operations instead of polling.
+	  This can improve system responsiveness but requires interrupt
+	  support to be properly configured.
+
+
+config CRYPTO_EM32_SHA_PREALLOC_SIZE
+	int "Initial accumulation pre-allocation size (bytes)"
+	default 4096
+	range 512 2097152
+	help
+	  When the driver switches from the small 256-byte legacy buffer to
+	  the accumulation path (single-run hashing), it will ensure the
+	  accumulation buffer is at least this large to reduce late
+	  reallocations during long messages. Increase if you commonly hash
+	  multi-kilobyte messages and have enough heap. Default 4096 (4KB)
+	  minimizes initial memory usage on EM32F967's 112KB system RAM.
+	  Buffer grows dynamically as needed up to MAX_ACCUM_SIZE.
+
+config CRYPTO_EM32_SHA_MAX_ACCUM_SIZE
+	int "Maximum accumulation buffer size (bytes)"
+	default 524288
+	range 4096 2097152
+	help
+	  Upper bound for the total accumulation buffer size used to collect
+	  input prior to the single-run hardware hash. If an input exceeds
+	  this size, updates will fail with -ENOMEM. Set based on available
+	  RAM and expected message sizes. Default 524288 (512KB) supports
+	  large data processing on EM32F967's 160KB available RAM through
+	  dynamic allocation. For very large data >512KB, use state continuation
+	  processing instead of accumulation.
+	  The EM32F967 hardware can process up to 2^59 bits in a single operation.
+
+config CRYPTO_EM32_SHA_CHUNK_SIZE
+	int "Chunk size for large data processing (bytes)"
+	default 65536
+	range 4096 262144
+	help
+	  Size of each chunk when processing data larger than the accumulation
+	  buffer. Default 65536 (64KB) fits within EM32F967's 112KB system RAM
+	  constraint. Smaller chunks reduce memory usage but increase processing
+	  overhead. Larger chunks improve performance but require more RAM.
+	  Used for state continuation support when processing >400KB data.
+
+config CRYPTO_EM32_SHA_TIMEOUT_USEC
+	int "SHA engine completion timeout (usec)"
+	default 100000
+	range 1000 5000000
+	help
+	  Maximum time to wait for the SHA engine to signal completion before
+	  aborting with a timeout error. Increase if your system clocking is
+	  slower or you hash very large inputs.
+
+endif # CRYPTO_EM32_SHA

@@ -1,0 +1,66 @@
+﻿PWR Register Start Addr: 0x4003_1000,,,,,,,,
+offset,Name,Bit,Bit Name,Description,Default,,,
+0x000,PD_REG,bit[31:16],RESERVED,,16'h0,,,
+,,bit[15],SRAM Power set enable,Enable LS/DS/SD Function from Register,1'b0,,,
+,,bit[14],LDO2 PD,Standby to LDO2 Power-Down,1'b0,,,
+,,bit[13],BOR PD,Standby to BOR Power-Down,1'b0,,,
+,,bit[12],32K PD,Standby to 32K Power-Down,1'b0,,,
+,,bit[11],HIRC PD,Standby to HIRC Power-Down,1'b0,,,
+,,bit[10],LDO Idle ,Standby to LDO Idle,1'b0,,,
+,,bit[9],[10~15] Gating enable,Gating SIP-PD enable,1'b0,,,
+,,bit[8],Standby2_flag,Standby2 Status Active,1'b0(RW),,,
+,,bit[7],Standby1_flag,Standby1 Status Active,1'b0(RW),,,
+,,bit[6],PD_SW_ACK_EN,Power Switch Ack Enable,1'b0,,,
+,,bit[5:3],"PD_WARMUP_CNT
+(PD Warm Time)","Wakup count after power off to on
+000 : 2 * 31.25uS(32K IRC)
+001 : 4 * 31.25uS(32K IRC)
+010 : 8 * 31.25uS(32K IRC)
+011 : 16 * 31.25uS(32K IRC)
+100 : 32 * 31.25uS(32K IRC)
+101 : 64 * 31.25uS(32K IRC)
+110 : 128 * 31.25uS(32K IRC)
+111 : 256 * 31.25uS(32K IRC)",3'b010,,,
+,,bit[2:0],PD_SW,"Power Domain Switch(32K SIRC Ack)
+000: Active
+001: CPU
+010: Standby1
+011: GHM
+100: Standby2",3'b0,,,
+0x004,WAKEUP_REG,bit[31],ECO RTC Flag Reset select,"0: from PRESET
+1: from POR",1'b0,dummy 3bit,,
+,,bit[30:29],RESERVED,,2'b10,,,
+,,bit[28],EXT_WAKEUP_STATUS_CLR,External port change wake up status clear,1'b0,,,
+,,bit[27:21],EXT_WAKEUP_STATUS,"External port change wake up status
+(H.W. set, F.W. clear)",7'h0(RO),,,
+,,bit[20:7],EXT_WAKEUP_TYPE,"External port change wake up type
+00: Fall Edge 
+01: Rise Edge 
+10/11: Both Edge ",14'h2aaa,,,
+,,bit[6:0],EXT_WAKEUP_EN,"External port change wake up enable
+bit[6:0] : Wkup7~Wkup1(refer to IO mux)",7'h0,,,
+,,,,,,,,
+,,,Low Power State,Wakeup 方式,回到Active mode 時間,,,
+,,,Sleep,中斷喚醒,Push/POP Time,CPU no-clock,,
+,,,Deep Sleep 0,"Wakeup (Port change GPIOA/B)
+External Interrupt(Wakeup1~7)
+LVD Interrupt
+System hold Interrupt
+WDT timeout
+USB host resume
+I2C resume
+SPI wakeup
+RTC interrupt",Warm-up time,32Khz,,
+,,,Deep Sleep 1,"External Interrupt(Wakeup1~7)
+USB host resume
+I2C resume
+SPI wakeup",Warm-up time,no-clock,,
+,,,,,,,,
+,,,"Warm-up time 由 clock diagram 的 mux2 判斷  (LIRC32K 算) 
+(1) MAIN IRC  =>100us
+(2) Xtal+PLLA=> 2ms
+(3) Main IRC +PLLA => 200us",,,,,
+,,,Clock source:,warm up time ,,,,
+,,,Main IRC: ,100us,,,,
+,,,Main IRC+PLL,250 us,,,,
+,,,XTAL+Pll,2ms,,,,

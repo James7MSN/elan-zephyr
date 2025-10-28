@@ -1,0 +1,478 @@
+﻿Syscfg Control Register Start Addr: 0x4003_0000,,,,,,
+Addr,IP name,Addr,IP name,,,
+0x000,System,0x300,Test,,,
+0x100,Clock,0x400,MBIST,,,
+0x200,IO,0xF00,Chip ID,,,
+offset,Name,Bit,Bit Name,Description,Default,Note:
+0x000,SYS_REG,bit[31],REMAP MODE(only MIRC clock) ,Remap to Flash Main (Default) ,1'b1,
+,,bit[30],REMAP MODE(only MIRC clock) ,1'b1: Remap to Flash Boot,1'b0(RO),
+,,bit[29],REMAP MODE(only MIRC clock) ,Remap to SYSRAM,1'b0,
+,,bit[28],REMAP MODE(only MIRC clock) ,Remap to IDRAM,1'b0,
+,,bit[27],PMUCTRL,"0: Disable PMU
+1: Enable PMU ",1'b0,"For system level power retenation
+目前硬體未設計 所以Default disable."
+,,bit[26],RESETOP,"0: Does not automatically generate reset when the processor is in the LOCKUP state.
+1: Automatically generates system reset if the processor is in the LOCKUP state.",1'b0,原廠規格就有的
+,,bit[25],POWER SWITCH ENABLE,"0: Power Switch Disable
+1: Power Switch Enable",1'b0,多一道鎖
+,,bit[24],Clear ECC register key,1: Clear Register(設為1之後要再設為0),1'b0,
+,,bit[23],DEEP SLEEP CLOCK SELECTION,"0: 32K& 512KHz active  ;
+1: no clock",1'b0,
+,,bit[22],SOFTWARE RESETn,"Active ""Low"". 
+Set by firmware, clear by hardware, 
+Software has to setting bit 0x40030008 bit[31] before set this bit. ",1'b1,
+,,bit[21],HIRC_TESTV,"0: TESTV Disable
+1: TESTV Enable",1'b0,
+,,bit[20],USB_Reset SEL,"Select USBPHY&UDC Reset Source
+0: Ori Reset(all reset)
+1: POR",1'b0,
+,,bit[19],I2C1_Reset SEL,"Select I2C1 Reset Source
+0: Ori Reset(all reset)
+1: POR",1'b0,
+,,bit[18],RTC_SEL,"(Mux15)
+0:1HZ
+1:32K",1'b0,
+,,bit[17],EncryptCLK_DIV,"(Div8)
+0:1/1
+1:1/2 ",1'b0,
+,,bit[16],ACC1CLK_DIV,"(Div6)
+0:1/1
+1:1/2 ",1'b0,
+,,bit[15],QSPICLK_DIV,"(Div7)
+0:1/1
+1:1/2 ",1'b0,
+,,bit[14],Timer4_SEL,"(Mux14)
+0: 32K
+1: EXT TC4",1'b1,
+,,bit[13],Timer3_SEL,"(Mux13)
+0: 32K
+1: EXT TC3",1'b1,
+,,bit[12],Timer2_SEL,"(Mux12)
+0: 32K
+1: EXT TC2",1'b1,
+,,bit[11],Timer1_SEL,"(Mux11)
+0: 32K
+1: EXT TC1",1'b1,
+,,bit[10],EncryptCLK_SEL,"(Mux10)
+0: HCLK
+1: PLL",1'b0,
+,,bit[9],GHMCLK_SEL,"(Mux9)
+0: HIRC
+1: PLL",1'b0,
+,,bit[8],QSPICLK_SEL,"(Mux8)
+0: HCLK
+1: PLL",1'b0,
+,,bit[7:5],HCLK_DIV,"(Div2)
+000:1/1
+001:1/2 
+010:1/4
+011:1/8 
+100:1/16
+101:1/32
+110:1/64
+111:1/128",3'b000,
+,,bit[4],USBCLK_SEL,"(Mux4)
+0: Via Fast Lock PLLB
+1: EXT Clock_B",1'b0,
+,,bit[3:2],HCLK_SEL,"(Mux2)
+00: HIRC 
+01: HIRC+PLL 
+10: EXT Clock_A
+11: 32KHz",2'b00,
+,,bit[1],XTAL_LJIRC_SEL ,"(MUX3)
+0: Xtal 
+1: Lowjitter IRC ",1'b1,
+,,bit[0],XTAL_HIRC_SEL  ,"(MUX1)
+0: HIRC/4
+1: Xtal/n  ( 12MHz/2 ; 24MHz/4)",1'b0,
+0x004,"SYS_STATUS
+(Always ON)",bit[31:10],RESERVED,,22'h0,
+,,bit[9],LVD_Flash_RST_STATUS,LVD Flash Reset Status (H.W. set ; F.W. set high to clear ),1'b0,
+,,bit[8],BOR_RST_STATUS,BOR Reset Status (H.W. set ; F.W. set high to clear ),1'b0,
+,,bit[7:5],WAIT COUNT Status,"Flash Wait Count Flag
+See clock 組合",3'b000(RO),
+,,bit[4],LOCKUP_RST_STATUS,LOCKUP Reset Status (H.W. set ; F.W. set high to clear ),1'b0,
+,,bit[3],SYSREQ_RST_STATUS,SYSRESETREQ Reset Status (H.W. set ; F.W. set high to clear ),1'b0,
+,,bit[2],SW_RST_STATUS,SW Reset Status (H.W. set ; F.W. set high to clear ),1'b0,
+,,bit[1],WDT_RST_STATUS,WDT Reset Status (H.W. set ; F.W. set high to clear ),1'b0,
+,,bit[0],CHIPPT_LEVEL_RST_STATUS,CHIPPT Level 1=>0  Reset Status (H.W. set ; F.W. set high to clear ),1'b0,
+0x008,MISC_REG,bit[31],SOFTWARE RESET SWITCH ,"Software Reset Switch
+0: Disable
+1: Enable",1'b0,
+,,bit[30],"Flash control enable
+(Erase/prog/LVE/mass-erase)","0: CPU readyout from arbiter
+1: CPU readyout from Flash",1'b0,請切換到低頻再設定
+,,bit[29],Remap switch,"0: Readyout from Flash control
+1: Readyout always high",1'b0,"切換APB3 Flash Readyout source
+使用在Remap在IDRAM時IAP應用"
+,,bit[28],Gating_CPU_Clock,"0: gating disable(Flash erase/prog)
+1: gating enable(Flash erase/prog)",1'b0,"Erase/Prog gating clock
+在Smart card 省power peak"
+,,bit[27],remap_idram_sel,"0: Main
+1: Boot",1'b0,
+,,bit[26],remap_sysram_sel,"0: Main
+1: Boot",1'b0,
+,,bit[25:8],RESERVED,,18'h0,
+,,bit[7:4],WAIT COUNT Password,Password:1010,4'h0,
+,,bit[3],WAIT COUNT Set en,,1'b0,
+,,bit[2:0],WAIT COUNT Set,"Flash Wait Count Set
+000~111: 0~7 cycle count",3'b000(RW),
+0x00C,DMA HS Select,bit[31:25],RESERVED,,7'h0,
+,,bit[24],DMA_CS flag,"Low voltage detect status flag. set by HW,clear by SW
+0: Flag signal is Not Detected
+1: Flag signal is Detected ",1'b0(RW),
+,,bit[23],DMA_CS int enable,"0:Disable
+1:Enable",1'b0,
+,,bit[22],DMA_CS Enable,"0:Disable
+1:Enable",1'b0,
+,,bit[21:19],Select DMA_CS Delay,"Select DMA_CS Delay time:(SIRC_32K) maybe 1T offset
+000: 0T
+001: 1T
+010: 2T
+011: 3T
+100: 4T
+101: 5T
+110: 6T
+111: 7T",3'b000,
+,,bit[18:16],Select Tfr int,"Select DMA_CS Source Select:
+000: Ch0
+001: Ch1
+010: Ch2
+011: Ch3
+1xx: Ch4",3'b000,
+,,bit[15],Handshaking ch15,"0: ISO7816-2_RX
+1: USART_RX",1'b0,
+,,bit[14],Handshaking ch14,"0: ISO7816-2_TX
+1: USART_TX",1'b0,
+,,bit[13],Handshaking ch13,"0: ISO7816-1_RX
+1: USART_RX",1'b0,
+,,bit[12],Handshaking ch12,"0: ISO7816-1_TX
+1: USART_TX",1'b0,
+,,bit[11],Handshaking ch11,"0: USB_RX
+1: QSPI_RX",1'b0,
+,,bit[10],Handshaking CH10,"0: USB_TX
+1: QSPI_TX",1'b0,
+,,bit[9],Handshaking CH9,"0: Elan_SPI_RX
+1: UART1_RX",1'b0,
+,,bit[8],Handshaking CH8,"0: Elan_SPI_TX
+1: UART1_TX",1'b0,
+,,bit[7],Handshaking CH7,"0: ARM_SSP_RX
+1: UART2_RX",1'b0,
+,,bit[6],Handshaking CH6,"0: ARM_SSP_TX
+1: UART2_TX",1'b0,
+,,bit[5],Handshaking CH5,"0: QSPI_RX
+1: I2C1_RX",1'b0,
+,,bit[4],Handshaking CH4,"0: QSPI_TX
+1: I2C1_TX",1'b0,
+,,bit[3],Handshaking CH3,"0: I2C1_RX
+1: I2C2_RX",1'b0,
+,,bit[2],Handshaking CH2,"0: I2C1_TX
+1: I2C2_TX",1'b0,
+,,bit[1],Handshaking CH1,"0: UART1_RX
+1: UART2_RX",1'b0,
+,,bit[0],Handshaking CH0,"0: UART1_TX
+1: UART2_TX",1'b0,
+0x100,CLKGATE_REG,bit[31],HCLKG_EXTSPI,Gating External SPI clock 0: gating clock disable  1: gating clock enable  ,1'b1,
+,,bit[30],PCLKG_TRNG,Gating TRNG  0: gating clock disable  1: gating clock enable  ,1'b1,
+,,bit[29],PCLKG_ECC,Gating ECC   0: gating clock disable  1: gating clock enable  ,1'b1,
+,,bit[28],PCLKG_AIP,Gating AIP   0: gating clock disable  1: gating clock enable  ,1'b1,
+,,bit[27],PCLKG_CACHE,Gating Cache   0: gating clock disable  1: gating clock enable  ,1'b1,
+,,bit[26],PCLKG_PWR,Gating power manager block clock   0: gating clock disable  1: gating clock enable  ,1'b1,
+,,bit[25],PCLKG_DWG,Gating Watch-dog clock  0: gating clock disable  1: gating clock enable ,1'b1,
+,,bit[24],PCLKG_BKP,Gating Backup Register clock 0: gating clock disable  1: gating clock enable  ,1'b1,
+,,bit[23],PCLKG_RTC,Gating RTC clock   0: gating clock disable 1: gating clock enable ,1'b1,
+,,bit[22],PCLKG_ATRIM,Gating USB Autotrim clock 0: gating clock disable 1: gating clock enable  ,1'b1,
+,,bit[21],PCLKG_UDC,Gating UDC clock 0: gating clock disable  1: gating clock enable ,1'b1,
+,,bit[20],RESERVED,,1'b1,
+,,bit[19],PCLKG_PWM,Gating PWM clock  0: gating clock disable 1: gating clock enable ,1'b1,
+,,bit[18],PCLKG_I2C2,Gating I2C2 clock 0: gating clock disable 1: gating clock enable,1'b1,
+,,bit[17],PCLKG_I2C1,Gating I2C1 clock 0: gating clock disable 1: gating clock enable,1'b1,
+,,bit[16],CLKG_SSP2,Gating SSP2 AHB&APB clock 0: gating clock disable  1: gating clock enable ,1'b1,
+,,bit[15],HCLKG_Elan-SPI,Gating Elan-SPI clock 0: gating clock disable  1: gating clock enable ,1'b1,
+,,bit[14],PCLKG_UART3,Gating UART3 clock 0: gating clock disable 1: gating clock enable  ,1'b1,
+,,bit[13],PCLKG_UART2,Gating UART2 clock 0: gating clock disable 1: gating clock enable  ,1'b1,
+,,bit[12],PCLKG_UART1,Gating UART1 clock 0: gating clock disable 1: gating clock enable  ,1'b1,
+,,bit[11],PCLKG_TMR4,Gating Timer4 clock 0: gating clock disable  1: gating clock enable  ,1'b1,
+,,bit[10],PCLKG_TMR3      ,Gating Timer3 clock 0: gating clock disable 1: gating clock enable  ,1'b1,
+,,bit[9],PCLKG_TMR2,Gating Timer2 clock 0: gating clock disable  1: gating clock enable  ,1'b1,
+,,bit[8],PCLKG_TMR1      ,Gating Timer1 clock 0: gating clock disable 1: gating clock enable  ,1'b1,
+,,bit[7],PCLKG_USART,Gating USART clock 0: gating clock disable  1: gating clock enable  ,1'b1,
+,,bit[6],PCLKG_ENCRYPT,Gating Encrtpt AHB&APB clock 0: gating clock disable  1: gating clock enable  ,1'b1,
+,,bit[5],PCLKG_7816-2,Gating 7816-2 APB clock 0: gating clock disable  1: gating clock enable  ,1'b1,
+,,bit[4],PCLKG_7816-1,Gating 7816-1 APB clock 0: gating clock disable  1: gating clock enable  ,1'b1,
+,,bit[3],PCLKG_LPC,Gating LPC APB clock 0: gating clock disable  1: gating clock enable  ,1'b1,
+,,bit[2],HCLKG_GPIOB      ,Gating GPIOB  clock  0: gating clock disable 1: gating clock enable ,1'b1,
+,,bit[1],HCLKG_GPIOA    ,Gating GPIOA clock 0: gating clock disable  1: gating clock enable ,1'b1,
+,,bit[0],HCLKG_DMA    ,Gating DMA clock   0: gating clock disable  1: gating clock enable ,1'b1,
+0x104,CLKGATE2_REG,bit[31:12],RESERVED,,20'h0,
+,,bit[11],HCLKF_GHM_M2D,Gating GHM clock 0: gating clock disable  1: gating clock enable  ,1'b1,
+,,bit[10],HCLKF_GHM_SAD,Gating GHM clock 0: gating clock disable  1: gating clock enable  ,1'b1,
+,,bit[9],HCLKF_GHM_LSE,Gating GHM clock 0: gating clock disable  1: gating clock enable  ,1'b1,
+,,bit[8],HCLKF_GHM_DISTINGUISH,Gating GHM clock 0: gating clock disable  1: gating clock enable  ,1'b1,
+,,bit[7],HCLKF_GHM_DOUBLE,Gating GHM clock 0: gating clock disable  1: gating clock enable  ,1'b1,
+,,bit[6],HCLKF_SWSPI,Gating SWSPI clock 0: gating clock disable  1: gating clock enable  ,1'b1,
+,,bit[5],HCLKF_GHM_RANSAC,Gating GHM clock 0: gating clock disable  1: gating clock enable  ,1'b1,
+,,bit[4],HCLKF_FLASH_BIST,Gating BIST clock 0: gating clock disable  1: gating clock enable  ,1'b1,
+,,bit[3],HCLKF_GHM_IP,Gating GHM clock 0: gating clock disable  1: gating clock enable  ,1'b1,
+,,bit[2],HCLKF_GHM_ACC3,Gating GHM clock 0: gating clock disable  1: gating clock enable  ,1'b1,
+,,bit[1],HCLKF_GHM_ACC2,Gating GHM clock 0: gating clock disable  1: gating clock enable  ,1'b1,
+,,bit[0],HCLKF_GHM_ACC1,Gating GHM clock 0: gating clock disable  1: gating clock enable  ,1'b1,
+0x108,"IP_RESET_REG
+(Reset Flow
+Set 1=>0=>1)",bit[31],Flash_QSPI,0: Enable IP Reset 1: Disable IP Reset,1'b1,
+,,bit[30],TRNG,0: Enable IP Reset 1: Disable IP Reset,1'b1,
+,,bit[29],ECC,0: Enable IP Reset 1: Disable IP Reset,1'b1,
+,,bit[28],SWSPI,0: Enable IP Reset 1: Disable IP Reset,1'b1,
+,,bit[27],CACHE,0: Enable IP Reset 1: Disable IP Reset,1'b1,
+,,bit[26],PWR,0: Enable IP Reset 1: Disable IP Reset,1'b1,
+,,bit[25],WATCH-DOG,0: Enable IP Reset 1: Disable IP Reset,1'b1,
+,,bit[24],LPC,0: Enable IP Reset 1: Disable IP Reset,1'b1,
+,,bit[23],RTC,0: Enable IP Reset 1: Disable IP Reset,1'b1,
+,,bit[22],ATRIM,0: Enable IP Reset 1: Disable IP Reset,1'b1,
+,,bit[21],UDC,0: Enable IP Reset 1: Disable IP Reset,1'b1,
+,,bit[20],SYSRAM,0: Enable IP Reset 1: Disable IP Reset,1'b1,
+,,bit[19],PWM,0: Enable IP Reset 1: Disable IP Reset,1'b1,
+,,bit[18],I2C2,0: Enable IP Reset 1: Disable IP Reset,1'b1,
+,,bit[17],I2C1,0: Enable IP Reset 1: Disable IP Reset,1'b1,
+,,bit[16],SSP2,0: Enable IP Reset 1: Disable IP Reset,1'b1,
+,,bit[15],Elan-SPI,0: Enable IP Reset 1: Disable IP Reset,1'b1,
+,,bit[14],UART3,0: Enable IP Reset 1: Disable IP Reset,1'b1,
+,,bit[13],UART2,0: Enable IP Reset 1: Disable IP Reset,1'b1,
+,,bit[12],UART1,0: Enable IP Reset 1: Disable IP Reset,1'b1,
+,,bit[11],Timer4,0: Enable IP Reset 1: Disable IP Reset,1'b1,
+,,bit[10],Timer3,0: Enable IP Reset 1: Disable IP Reset,1'b1,
+,,bit[9],Timer2,0: Enable IP Reset 1: Disable IP Reset,1'b1,
+,,bit[8],Timer1,0: Enable IP Reset 1: Disable IP Reset,1'b1,
+,,bit[7],USART,0: Enable IP Reset 1: Disable IP Reset,1'b1,
+,,bit[6],ENCRYPT,0: Enable IP Reset 1: Disable IP Reset,1'b1,
+,,bit[5],ISO7816-2,0: Enable IP Reset 1: Disable IP Reset,1'b1,
+,,bit[4],ISO7816-1,0: Enable IP Reset 1: Disable IP Reset,1'b1,
+,,bit[3],GHM,0: Enable IP Reset 1: Disable IP Reset,1'b1,
+,,bit[2],GPIOB      ,0: Enable IP Reset 1: Disable IP Reset,1'b1,
+,,bit[1],GPIOA    ,0: Enable IP Reset 1: Disable IP Reset,1'b1,
+,,bit[0],DMA    ,0: Enable IP Reset 1: Disable IP Reset,1'b1,
+0x10C,Flash BIST(CP),bit[31:4],RESERVED,,28'h0,
+,,bit[3:1],RESERVED,,3'b000,Dummy-bit
+,,bit[0],BIST_SEL,"(Mux17)
+0: HIRC
+1: SYSPLL",1'b0,
+0x200,IOMUX_PA_CTRL,bit[31:0],PA0~6 IOMUX(5V-PAD),"PAx IO mux Swtich 3bits: 000~111 
+PA0[3:0],PA1[7:4],PA2[11:8],PA3[15:12],PA4[19:16],PA5[23:20],PA6[27:24]",32'h0,
+0x204,IOMUX_PA_CTRL,bit[31:0],PA11~15 IOMUX(3V-PAD),"PAx IO mux Swtich 3bits : 000~111
+PA11[15:12],PA12[19:16],PA13[23:20],PA14[27:24],PA15[31:28]",32'h0,
+0x208,IOMUX_PB_CTRL,bit[31:0],PB0~7 IOMUX(3V-PAD),"PBx IO mux Swtich 3bits : 000~111
+PB0[3:0],PB1[7:4],PB2[11:8],PB3[15:12],PB4[19:16],PB5[23:20],PB6[27:24],PB7[31:28]",32'h0,
+0x20C,IOMUX_PB_CTRL,bit[31:0],PB8~15 IOMUX(3V-PAD),"PBx IO mux Swtich 3bits : 000~111
+PB8[3:0],PB9[7:4],PB10[11:8],PB11[15:12],PB12[19:16],PB13[23:20],PB14[27:24],PB15[31:28]",32'h0,
+0x210,IO_ANA_EN_CTRL,bit[31:8],RESERVED,,24'h0,
+,,bit[11:0],TEST_A1&A2&A3 Analog IO mux ,"[ 0]: TEST_A1, 0:Disable, 1(00): LJIRC
+[ 1]: TEST_A1, 0:Disable, 1(01): HIRC_Trim
+[ 2]: TEST_A1, 0:Disable, 1(10): PLL_Regu
+[ 3]: TEST_A1, 0:Disable,
+[ 4]: TEST_A2, 0:Disable,
+[ 5]: TEST_A2, 0:Disable,
+[ 6]: TEST_A2, 0:Disable, 1(10): TM0
+[ 7]: TEST_A2, 0:Disable, 1(11): TM2
+[ 8]: TEST_A3, 0:Disable,
+[ 9]: TEST_A3, 0:Disable,
+[10]: TEST_A3, 0:Disable, 1(10): TM1
+[11]: TEST_A3, 0:Disable, 1(11): TM3",12'h0,"同一個ANA-PAD不能同時
+打開兩個以上的Enable
+會有互相干擾現象"
+0x214,IOPUPD_PA_CTRL,bit[31:0],"PA0~615 PU/PD
+PA0~615 PU/PD ","PA0~6(Bit 13~0) PU0/PU1/PD:[1:0]
+00: Floating
+01: PU0 (Pull Up 5V→66K,  3.3V→101K, 1.8V→238K)
+10: PU1 (Pull Up 5V→4.7K,  3.3V→6.41K, 1.8V→12.7K)
+11: PD (Pull Down 5V→15K,  3.3V→21.8K, 1.8V→49.6K) (Default)
+PA11~15(Bit 31~22) PU0/PU1/PD:[1:0]
+00: Floating
+01: PU0 (Pull Up 3.3V→66K, 1.8V→140K)
+10: PU1 (Pull Up 3.3V→4.7K, 1.8V→8.53K)
+11: PD (Pull Down 3.3V→15K, 1.8V→25.2K) (Default)",32'hFDFF_FFFF ,"SWD PA11 TCK 2'b11 PD
+SWD PA12 TMS 2'b01 PU0"
+0x218,IOPUPD_PB_CTRL,bit[31:0],PB0~15 PU/PD : [1:0],"PAB(Bit 31~0) PU0/PU1/PD:[1:0]
+00: Floating
+01: PU0 (Pull Up 3.3V→66K, 1.8V→140K)
+10: PU1 (Pull Up 3.3V→4.7K, 1.8V→8.53K)
+11: PD (Pull Down 3.3V→15K, 1.8V→25.2K) (Default)",32'hFFFF_FFFF ,
+0x21C,IO_HD_PA_CTRL,bit[31:16],RESERVED,,16'h0,
+,,bit[15:0],PA0~15 HD ,"High driver(Load=30P)
+PA0~10(5VIO)
+[5V]
+5Mhz:    0:900uA(20mA) ; 1:930uA(40mA)
+3.5Mhz: 0:630uA(17mA) ; 1:660uA(38mA) 
+PA11~15(3.3VIO)
+[3.3V]
+4Mhz:   0:470uA(32mA) ; 1:490uA(65mA)
+48Mhz: 1:5.8mA(68mA)",16'h0,
+0x220,IO_HD_PB_CTRL,bit[31:16],RESERVED,,16'h0,
+,,bit[15:0],PB0~15 HD,"High Driver(Load=30P)
+PB0~15
+[3.3V]
+4Mhz:   0:470uA(32mA) ; 1:490uA(65mA)
+48Mhz: 1:5.8mA(68mA)",16'h0,
+0x224,IO_SMT_PA_CTRL,bit[31:16],RESERVED,,16'h0,
+,,bit[15:0],PA0~15 SMT,"Schmitt Trigger(SMTEN)
+SMTEN=0  buffer
+SMTEN=1 有遲滯",16'hFFFF ,
+0x228,IO_SMT_PB_CTRL,bit[31:16],RESERVED,,16'h0,
+,,bit[15:0],PB0~15 SMT,"Schmitt Trigger(SMTEN)
+SMTEN=0  buffer
+SMTEN=1 有遲滯",16'hFFFF ,
+0x22C,IO_ODE_PA_CTRL,bit[31:16],RESERVED,,16'h0,
+,,bit[15:0],PA0~15 ODE,"Open Drain Enable(ODE)
+ODE=0 輸出 0&1 正常
+ODE=1 無法正常輸出1(High level)",16'h0,
+0x230,IO_ODE_PB_CTRL,bit[31:16],RESERVED,,16'h0,
+,,bit[15:0],PB0~15 ODE,"Open Drain Enable(ODE)
+ODE=0 輸出 0&1 正常
+ODE=1 無法正常輸出1(High level)",16'h0,
+0x234,IO_OSE_PA_CTRL,bit[31:16],RESERVED,,16'h0,
+,,bit[15:0],PA0~15 OSE,"Open Source Enable(OSE)
+OSE=0 輸出 0&1 正常
+OSE=1 無法正常輸出0(Low level)",16'h0,
+0x238,IO_OSE_PB_CTRL,bit[31:16],RESERVED,,16'h0,
+,,bit[15:0],PB0~15 OSE,"Open Source Enable(OSE)
+OSE=0 輸出 0&1 正常
+OSE=1 無法正常輸出0(Low level)",16'h0,
+0x23C,IP Share IOMUX,bit[31:25],RESERVED,,7'h0,
+,,bit[24:23],LPC Test2 Select,"00: T1 
+01: T2
+1x: T3",2'b0,
+,,bit[22:21],LPC Test1 Select,"00: T1 
+01: T2
+1x: T3",2'b0,
+,,bit[20],LPC_PWMB PB9 Select,"0: PWMB
+1: LPC_PWMB",1'b0,
+,,bit[19],LPC_PWMA PB8 Select,"0: PWMA
+1: LPC_PWMA",1'b0,
+,,bit[18],PWM Select,"0: PA0~5
+1: PB10~15",1'b0,
+,,bit[17],PWM SW3,"0: PWMF
+1: PWMC1",1'b0,
+,,bit[16],PWM SW2,"0: PWME
+1: PWMB1",1'b0,
+,,bit[15],PWM SW1,"0: PWMD
+1: PWMA1",1'b0,
+,,bit[14],Flash JTAG(for CP),"0: PA3~PA5
+1: PB5~PB7",1'b0,
+,,bit[13],SSP_SWSPI,"0: SSP
+1: SWSPI",1'b0,
+,,bit[12:11],DMA_CS,"00: PB0
+01: PB4
+1x: PA13",2'b00,
+,,bit[10],USART,"0: PB1~PB3
+1: PA3~PA5",1'b0,
+,,bit[9],I2C2,"0: PA4~PA5
+1: PB6~PB7",1'b0,
+,,bit[8],I2C1,"0: PA1~PA2
+1: PB0~PB1",1'b0,
+,,bit[7],URXD2,"0: PA14~PA15
+1: PA4~PA5",1'b0,
+,,bit[6],URXD1,"0: PB8~PB9
+1: PA1~PA2",1'b0,
+,,bit[5],ISO7816-2,"0: PA3~PA5
+1: PB4~PB6",1'b0,
+,,bit[4],ISO7816-1,"0: PA0~PA2
+1: PB0~PB2",1'b0,
+,,bit[3:2],SSP_SS2 &SWSPI,"00: PB4~PB7
+01: PB0~PB3
+1x: PA3~PA6",2'b00,
+,,bit[1:0],SPI_SS1,"00: PB0~PB3
+01: PB4~PB7
+1x: PA3~PA6",2'b00,
+0x240,PD_GPIO_CTRL,bit[31:4],RESERVED,,28'h0,"Power mode 
+& CP 使用"
+,,bit[3],PB9 CLCOK OUT ENABLE,"0: Disable 
+1: Enable",1'b0,
+,,bit[2],PB8 CLCOK OUT ENABLE,"0: Disable 
+1: Enable",1'b0,
+,,bit[1],PB POWER DOMAIN OUT ENABLE,"0: Disable 
+1: Enable",1'b0,
+,,bit[0],PA POWER DOMAIN OUT ENABLE,"0: Disable 
+1: Enable",1'b0,
+0x244,PD_PA_OE,bit[31:16],RESERVED,,16'h0,Smart Card 專用;不放spec 
+,,bit[15:0],PA0~15 OE,"0: Input Enable
+1: Output Enable",16'h0,Power mode use
+0x248,PD_PB_OE,bit[31:16],RESERVED,,16'h0,
+,,bit[15:0],PB0~15 OE,"0: Input Enable
+1: Output Enable",16'h0,Power mode use
+0x24C,PD_PA_OUT,bit[31:16],RESERVED,,16'h0,
+,,bit[15:0],PA0~15 Output High/Low,"0: Output 0
+1: Output 1",16'h0,Power mode use
+0x250,PD_PB_OUT,bit[31:16],RESERVED,,16'h0,
+,,bit[15:0],PB0~15 Output High/Low,"0: Output 0
+1: Output 1",16'h0,Power mode use
+0x254,PB8_CLOCK_RATE,bit[31:21],RESERVED,,12'h0,
+,,bit[20:0],PB8 DIV,SIRC32K/(DIV+1),20'd31,Smart card LED clock
+0x258,PB9_CLOCK_RATE,bit[31:21],RESERVED,,12'h0,
+,,bit[20:0],PB9 DIV,SIRC32K/(DIV+1),20'd31,Smart card LED clock
+0x25C,BOOT_LVE_PDPU,bit[31],BOOT_PDPU,"0:PD, 1:PU",1'b1,
+,,bit[30],LVE_PDPU,"0:PD, 1:PU",1'b1,
+,,bit[29:0],PASSWORD,Password: 38888192,30'h0,
+0x300,TEST1,bit[31:23],RESERVED,,9'h0aa,dummy 10bit
+,,bit[22],RESERVED,,1'b0,
+,,bit[21:15],CLK_OUT2_DIV,Clock 0 output divider clk_out1_div[6:0]: N  --> ratio : 1/(N+1),7'd3,
+,,bit[14:8],CLK_OUT1_DIV,Clock 0 output divider clk_out0_div[6:0]: N  --> ratio : 1/(N+1),7'd3,
+,,bit[7:4],CLK_OUT2 SOURCE : ,"clko1 Output clock source : 
+4'h00: SYSPLL /
+4'h01: USBPLL /
+4'h02: HIRC / 
+4'h03: LJIRC  /
+4'h04: SIRC512K / 
+4'h05: SIRC32K / 
+4'h06: HCLK/
+4'h07: PCLK (TRNG/ECC/....I2C/Timer)
+4'h08: NA /
+4'h09: HCLK_CPU/
+4'h0A: GHM_CLK
+4'h0B: QSPI_CLK
+4'h0C: Encyypt_CLK (AES/RSA/SHA)
+others(none)  --> (Mux5)",4'hF,
+,,bit[3:0],CLK_OUT1 SOURCE,"clko1 Output clock source : 
+4'h00: SYSPLL /
+4'h01: USBPLL /
+4'h02: HIRC / 
+4'h03: LJIRC  /
+4'h04: SIRC512K / 
+4'h05: SIRC32K / 
+4'h06: HCLK/
+4'h07: PCLK (TRNG/ECC/....I2C/Timer)
+4'h08: NA /
+4'h09: HCLK_CPU/
+4'h0A: GHM_CLK
+4'h0B: QSPI_CLK
+4'h0C: Encyypt_CLK (AES/RSA/SHA)
+others(none)  --> (Mux5)",4'hF,
+0x304,TEST2,bit[31:4],RESERVED,,28'h0,
+,,bit[3:0],AIP_TEST_OUT SOURCE,"LVD Output source : 
+4'h0:BOR
+4'h1:BOR_sync
+4'h2:LVD_Flash
+4'h3:LVD_Flash_sync
+4'h4:LVD_USB
+4'h5:LVD_USB_sync
+4'h6:LVD_DCDC
+4'h7:LVD_DCDC_sync
+4'h8:LVD_VDD33
+4'h9:LVD_VDD33_sync
+4'h10:LVD_LVDI
+4'h11:LVD_LVDI_sync
+4'h12:dcdc_pumpen
+others(none)",4'hF,
+0x400,"MBIST_H_CRTL
+(AHB Domain)",bit[31:16],E_ADR[15:0],,16'b0(RO),
+,,bit[15:12],E_DATA[3:0],,4'b0(RO),
+,,bit[11:7],E_ST[4:0],,5'b0(RO),
+,,bit[6],MBIST_H_ERR,,1'b0(RO),
+,,bit[5],MBIST_H_FINISH,,1'b0(RO),
+,,bit[4:3],MBIST_H_PART,"00: GHM
+01: IDRAM/SYSRAM
+10: Other(Cache, Flash, Encrypt)
+11: all",2'b11(RW),
+,,bit[2:1],MBIST_ALG,"00: March C-
+01: March C+
+10: March 33N",2'b00(RW),
+,,bit[0],MBIST_EN,"0: Disable MBIST
+1: Enable MBIST",1'b0(RW),

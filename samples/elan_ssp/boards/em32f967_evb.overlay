@@ -1,0 +1,42 @@
+/ {
+    aliases {
+        ssp2 = &ssp2;
+    };
+};
+
+&dma0 {
+    status = "okay";
+};
+
+&ssp2 {
+    status = "okay";
+    compatible = "elan,em32";
+    max-frequency = <10000000>;
+    dma-enabled;
+    dmas = <&dma0 0>, <&dma0 1>;
+    dma-names = "tx", "rx";
+
+    pinctrl-0 = <&ssp2_default>;
+    pinctrl-names = "default";
+};
+
+&pinctrl {
+    ssp2_default: ssp2_default {
+        group1 {
+            /* SSP2 CLK - PB5 */
+            pinmux = <5 2>;  /* Pin 5, MUX 2 */
+        };
+        group2 {
+            /* SSP2 MISO - PB6 */
+            pinmux = <6 2>;  /* Pin 6, MUX 2 */
+        };
+        group3 {
+            /* SSP2 MOSI - PB7 */
+            pinmux = <7 2>;  /* Pin 7, MUX 2 */
+        };
+        group4 {
+            /* SSP2 CS - PB4 (optional, can be GPIO) */
+            pinmux = <4 0>;  /* Pin 4, GPIO */
+        };
+    };
+};

@@ -1,0 +1,77 @@
+#!/bin/bash
+# .scripts/pre-commit v2.5
+# 檢查 staged 檔案是否缺少 EOF newline 或 CRLF 換行問題，並阻止提交
+
+SCRIPT_VERSION="v2.5"
+echo "🔍 Pre-commit ${SCRIPT_VERSION}: checking files..."
+
+# 取得 staged 的文字檔
+staged_files=$(git diff --cached --name-only --diff-filter=ACM | grep -vE '(^|/)\.git/' | xargs file | grep -i 'text' | cut -d: -f1)
+
+if [[ -z "$staged_files" ]]; then
+    echo "✅ 沒有需檢查的文字檔，跳過檢查。"
+    exit 0
+fi
+
+# 初始化
+has_issue=0
+newline_issues=()
+crlf_issues=()
+
+for file in $staged_files; do
+    # 確保檔案仍存在
+    [[ ! -f "$file" ]] && continue
+
+    # 檢查 EOF newline
+    last_char=$(tail -c1 "$file")
+    if [[ "$last_char" != "" && "$last_char" != $'\n' ]]; then
+        echo "❌ $file is missing newline at end of file"
+        has_issue=1
+        newline_issues+=("$file")
+    fi
+
+    # 檢查 CRLF
+    if grep -q $'\r' "$file"; then
+        echo "❌ $file contains Windows-style CRLF line endings"
+        has_issue=1
+        crlf_issues+=("$file")
+    fi
+done
+
+# 有問題則中止提交
+if [[ $has_issue -ne 0 ]]; then
+    echo "🛑 Commit aborted due to formatting issues."
+
+    echo "🔧 你可以修正這些問題："
+    echo "    .scripts/check_newline_eof.sh --fix-all <file|dir>"
+
+    # 顯示具體建議路徑
+    if [[ ${#newline_issues[@]} -gt 0 ]]; then
+        echo "    缺少換行的檔案："
+        for f in "${newline_issues[@]}"; do echo "      - $f"; done
+    fi
+
+    if [[ ${#crlf_issues[@]} -gt 0 ]]; then
+        echo "    CRLF 檔案："
+        for f in "${crlf_issues[@]}"; do echo "      - $f"; done
+    fi
+
+    exit 1
+else
+    # 列出重複出現在staged & unstaged的變更
+    am_count=$(git status --porcelain | grep AM | wc -l)
+    if (( am_count > 0 )); then
+        am_change=$(git status --porcelain | grep AM)
+        echo "⚠️  檔案已修正但尚未重新加入 staging 區："
+        echo "👉 請執行 'git add <file>' 後再重新 commit。"
+	echo "$am_change" | while IFS= read -r file; do
+            echo "      - $file"
+	done
+
+	exit 1
+    else
+        echo "✅ All checks passed. Proceeding with commit."
+	exit 0
+    fi
+fi
+
