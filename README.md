@@ -1,3 +1,30 @@
+# ELAN Zephyr Drivers and Samples
+
+This repository contains ELAN EM32* platform drivers, device-tree bindings, and sample applications for the Zephyr RTOS. It is intended to be used inside a Zephyr workspace alongside the upstream Zephyr tree.
+
+## Contents
+- `drivers/` – ELAN driver implementations (e.g., crypto/SHA, SPI, GPIO, clock control, etc.)
+- `dts/bindings/` – Device Tree bindings for ELAN peripherals
+- `samples/` – Minimal sample apps demonstrating driver usage (e.g., `samples/elan_sha`, `samples/elan_gpio`, ...)
+- `ai_doc/` and `em32f967_spec/` – Engineering notes/specs used during development
+
+## Quick start
+Prerequisites:
+- A working Zephyr toolchain and workspace (Zephyr SDK or appropriate cross toolchain)
+- Zephyr environment initialized (see https://docs.zephyrproject.org/latest/getting_started/index.html)
+
+Example build (replace `<your_board>` with your target board):
+```bash
+# From your Zephyr workspace root
+west build -p always -b <your_board> elan-zephyr/samples/elan_sha
+west flash
+```
+
+Maintainer: James Chen (james7chen@msn.com)
+
+---
+
+
 # Elan-Zephyr Extension: Support for `32f967_dv` Board and UART Driver
 
 This project extends the official Zephyr RTOS to support Elan’s custom board `32f967_dv` and includes a basic UART driver.
@@ -35,7 +62,7 @@ elan-zephyr/
 
 ## 🔧 Prework
 
-1. Clone the full official Zephyr repository into `zephyrproject/zephyr/`  
+1. Clone the full official Zephyr repository into `zephyrproject/zephyr/`
    → Follow the [Zephyr Getting Started Guide](https://docs.zephyrproject.org/latest/develop/getting_started/index.html)
 2. Install Zephyr SDK and required dependencies
 3. Clone Elan’s modified files into `zephyrproject/elan-zephyr/`
